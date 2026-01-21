@@ -294,21 +294,6 @@ bot.on('message', async (msg) => {
 
   const user = users.get(chatId);
 
-  /**
-   * 📞 ПОЛУЧЕНИЕ КОНТАКТА
-   */
-  if (msg.contact) {
-    if (!user || user.step !== 'phone') return;
-
-    user.phone = msg.contact.phone_number;
-    user.step = 'message';
-
-    bot.sendMessage(chatId, TEXT[user.lang].writeMsg, {
-      reply_markup: { remove_keyboard: true },
-    });
-    return;
-  }
-
   const text = msg.text;
   if (!text) return;
   if (text.startsWith('/')) return;
@@ -371,20 +356,15 @@ bot.on('message', async (msg) => {
     user.name = text;
     user.step = 'phone';
 
-    bot.sendMessage(chatId, TEXT[user.lang].askPhone, {
-      reply_markup: {
-        keyboard: [
-          [
-            {
-              text: TEXT[user.lang].shareContact,
-              request_contact: true,
-            },
-          ],
-        ],
-        resize_keyboard: true,
-        one_time_keyboard: true,
-      },
-    });
+    bot.sendMessage(chatId, TEXT[user.lang].askPhone);
+    return;
+  }
+
+  if (user.step === 'phone') {
+    user.phone = text;
+    user.step = 'message';
+
+    bot.sendMessage(chatId, TEXT[user.lang].writeMsg);
     return;
   }
 
